@@ -185,3 +185,5 @@ cython_debug/
 
 # keras models
 *.keras
+convnext_temp_model/config.json
+/convnext_temp_model
