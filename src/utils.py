@@ -28,7 +28,7 @@ def plot_model_history(history, metrics, figsize=(8, 4)):
         ax.set_ylabel(metric)
         ax.set_ylim(ymin=0)
         ax.set_xlabel('epoch')
-        ax.set_xticks(epoch_numbers)  # Only show integer epochs
+        ax.set_xticks(np.arange(1, n_epochs + 1, 5))  # Only show integer epochs
         ax.legend(['train', 'val'], loc='upper left')
     
     plt.tight_layout()
