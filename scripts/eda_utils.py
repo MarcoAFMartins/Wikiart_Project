@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 from PIL import Image
 
 
-# Image Dimensions
 def get_image_dimensions(folder):
     """Scan wikiart's images and returns a scatter plot of their widths and heights."""
     widths, heights = [], []
@@ -28,7 +27,6 @@ def get_image_dimensions(folder):
     plt.title("Image Dimensions")
     plt.show()
 
-# 2. Build filepath dictionary
 def build_filepaths_dict(class_names, folder):
     """Build {author: [filepath, ...]} dictionary from a dataset folder."""
     authors_painting_filepaths = {}
@@ -39,7 +37,6 @@ def build_filepaths_dict(class_names, folder):
     return authors_painting_filepaths
 
 
-# 3. Images per class 
 def images_per_class(authors_painting_filepaths):
     """Print and plot the number of images per class."""
     count = {c: len(paths) for c, paths in authors_painting_filepaths.items()}
@@ -57,7 +54,7 @@ def images_per_class(authors_painting_filepaths):
     plt.title("Images per Class")
     plt.show()
 
-# 4. File size distribution
+
 def plot_file_sizes(authors_painting_filepaths):
     """Plot histogram of file sizes across all images."""
     file_sizes = []
@@ -73,11 +70,11 @@ def plot_file_sizes(authors_painting_filepaths):
     plt.tight_layout()
     plt.show()
 
-# 5. Sample per class
+
 def plot_samples_per_class(authors_painting_filepaths, n_paintings=3):
     """Show n_paintings sample images for each author."""
     n_authors = len(authors_painting_filepaths)
-    plt.figure(figsize=(n_authors * 3, n_paintings * 3)) # multiply by 3 so that the title fits
+    plt.figure(figsize=(n_authors * 3, n_paintings * 3)) # we multiply by 3 so that the title fits
 
     for i_author, (author, files) in enumerate(authors_painting_filepaths.items()):
         for i_file in range(n_paintings):
@@ -90,7 +87,7 @@ def plot_samples_per_class(authors_painting_filepaths, n_paintings=3):
             plt.axis("off")
     plt.show()
 
-# 6. Average image per artist
+
 def compute_avg_images(authors_painting_filepaths, output_dir):
     """
     Compute the per-pixel average image for each artist and save to output_dir.
@@ -137,8 +134,6 @@ def plot_avg_images(authors_painting_filepaths, output_dir):
         plt.axis("off")
 
 
-# 7. Brightness & Saturation 
-
 def compute_brightness(authors_painting_filepaths, sample_size=50):
     """Compute mean greyscale brightness per author (sample of up to sample_size images)."""
     brightness_per_author = {}
@@ -146,7 +141,7 @@ def compute_brightness(authors_painting_filepaths, sample_size=50):
     for author, painting_files in authors_painting_filepaths.items():
         values = []
         for path in painting_files[:sample_size]:
-            img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)    #converter para gray scale para termos apenas um channel, o de luminusidade
+            img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)    # convert to gray scale so we have only one channel, luminosity
             values.append(img.mean())
         brightness_per_author[author] = np.mean(values)
 
@@ -205,8 +200,6 @@ def plot_brightness_saturation_scatter(brightness_per_author, saturation_per_aut
     plt.show()
 
 
-# 8. Mean RGB per artist
-
 def compute_mean_rgb(authors_painting_filepaths, sample_per_class=50):
     """Compute mean R, G, B channel values per artist and plot a horizontal bar chart."""
     mean_rgb = {}
@@ -256,7 +249,6 @@ def compute_mean_rgb(authors_painting_filepaths, sample_per_class=50):
     print("Done: RGB analysis computed")
 
 
-# 9. Grayscale images
 def find_grayscale_images(authors_painting_filepaths):
     """Detect images where R == G == B (effectively greyscale despite being RGB)."""
     grayscale_images = []
@@ -300,8 +292,6 @@ def plot_grayscale_per_class(grayscale_images, class_names):
     plt.show()
 
 
-# 10. Data quality assessment
-
 def assess_dataset(folder, valid_extensions=(".jpg", ".jpeg", ".png")):
     """
     Full data quality check: invalid extensions, empty files, corruption, NaN/inf values, and perceptual hash duplicates.
@@ -314,37 +304,34 @@ def assess_dataset(folder, valid_extensions=(".jpg", ".jpeg", ".png")):
         for file in files:
             path = os.path.join(root, file)
 
-            # 1. Extensão inválida
+            # invalid extension
             if not file.lower().endswith(valid_extensions):
                 invalid_files.append(path)
                 continue
 
-            # 2. Zero-byte
+            # zero-byte
             if os.path.getsize(path) == 0:
                 zerobyte_files.append(path)
                 continue
 
             try:
-                # 3. Abrir imagem + verificar corrupção -- se for inválido vai para o except
                 with Image.open(path) as img:
                     img.verify()
 
-                # Reabrir imagem -- verify() “invalida” o objeto da imagem; tem de abrir outra vez para usar
                 with Image.open(path) as img:
-                    img = img.convert("RGB")    # garantir consistência
-                    img.load()  # força leitura completa, apanha erros que o verify não
+                    img = img.convert("RGB")
+                    img.load()
 
-                img_array = np.asarray(img) #converte imagem em array para podermos analisar os pixels
+                img_array = np.asarray(img)
 
-                # 4. Verificar valores inválidos (deteta Nan, +infinito, -infinito)
                 if not np.isfinite(img_array).all():
                     naninf_images.append(path)
                     continue
 
-                # 5. Hash para duplicados
-                img_hash = imagehash.phash(img) #diferencia imagens visualmente iguais
+                # dupps
+                img_hash = imagehash.phash(img)
                 if img_hash in hashes:
-                    duplicate_files.append((path, hashes[img_hash]))    #guardamos as 2 que achamos que são duplicados
+                    duplicate_files.append((path, hashes[img_hash])) 
                 else:
                     hashes[img_hash] = path
 
@@ -382,8 +369,6 @@ def plot_duplicates(duplicates):
         plt.show()
 
 
-# 11. Outlier detection 
-
 def find_brightness_outliers(authors_painting_filepaths, low=30, high=220, low_var=10):
     """
     Flag images with extreme brightness (mean < low or > high) or very low variance (std < low_var).
@@ -397,12 +382,10 @@ def find_brightness_outliers(authors_painting_filepaths, low=30, high=220, low_v
                     img = img.convert("RGB")
                     arr = np.asarray(img)
 
-                #Brilho
-                if np.mean(arr) < low or np.mean(arr) > high:   #perto de 0 muito escuro, perto de 255 muito claro
+                if np.mean(arr) < low or np.mean(arr) > high: 
                     brightness_issues.append(path)
                 
-                # Low variance (variação de cor) 
-                if np.std(arr) < low_var:   #baixo -- imagem uniforme, alto -- imagem com detalhe
+                if np.std(arr) < low_var:  
                     low_variance_images.append(path)
             
             except Exception:
@@ -476,4 +459,3 @@ def plot_outlier_images(outliers, class_names):
                 plt.axis("off")
             plt.suptitle(f"Outliers - {c}")
             plt.show()
-
