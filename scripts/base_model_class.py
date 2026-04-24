@@ -1,4 +1,4 @@
-#Model Class
+# Model Class
 from keras import Model
 import keras
 
@@ -19,7 +19,9 @@ from augmentation import (
 @keras.saving.register_keras_serializable()
 class BatchNormalization2_Model(Model):
     """
-    Adding Batch Normalization Layers (before activation function)
+    Adding Batch Normalization Layers (before activation function).
+    
+    4 Pooling Layers and 4 Convolutional Blocks.
 
     """
     #Initialization
@@ -30,7 +32,6 @@ class BatchNormalization2_Model(Model):
         self.Rescaling = Rescaling(1./255)
         self.augmentation_layer = augmentation_moderate
 
-        #First Convolutional Block
         self.Conv1 = Conv2D(
             filters=40,
             kernel_size=(3, 3),
@@ -42,14 +43,11 @@ class BatchNormalization2_Model(Model):
 
         self.activation_1 = Activation(activation="relu")
 
-        #First Pooling Layer
         self.max_pool_layer_1 = MaxPooling2D(
             pool_size=(2, 2),
             name="max_pool_layer_1"
         )
 
-
-        #Second Convolutional Block
         self.Conv2 = Conv2D(
             filters=40,
             kernel_size=(3, 3),
@@ -61,13 +59,11 @@ class BatchNormalization2_Model(Model):
 
         self.activation_2 = Activation(activation="relu")
 
-        #Second Pooling Layer
         self.max_pool_layer_2 = MaxPooling2D(
             pool_size=(2, 2),
             name="max_pool_layer_2"
         )
 
-        #Third Convolutional Block
         self.Conv3 = Conv2D(
             filters=64,
             kernel_size=(3, 3),
@@ -79,14 +75,11 @@ class BatchNormalization2_Model(Model):
 
         self.activation_3 = Activation(activation="relu")
 
-        #Third Pooling Layer
         self.max_pool_layer_3 = MaxPooling2D(
             pool_size=(2, 2),
             name="max_pool_layer_3"
         )
 
-
-        #Fourth Convolutional Block
         self.Conv4 = Conv2D(
             filters=64,
             kernel_size=(3, 3),
@@ -98,7 +91,6 @@ class BatchNormalization2_Model(Model):
 
         self.activation_4 = Activation(activation="relu")
 
-        #Fourth Pooling Layer
         self.max_pool_layer_4 = MaxPooling2D(
             pool_size=(2, 2),
             name="max_pool_layer_4"
